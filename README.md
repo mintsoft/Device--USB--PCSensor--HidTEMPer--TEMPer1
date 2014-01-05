@@ -1,4 +1,6 @@
-Eventually this will be Device::USB::RDingTEMPer1
+Device::USB::RDingTEMPer1
+=========================
+Eventually this will be Device::USB::RDingTEMPer1 and hopefully compatible with Device::USB::PCSensor::HidTEMPer
 
 At the moment it's just a re-implementation of https://github.com/peterfarsinsen/pcsensor
 
@@ -8,8 +10,9 @@ All actual credit goes to:
 * Robert Kavaler (relavak.com)
 
 
+Supported Devices
+-----------------
 
-=Supported Devices=
 This is for devices that dmesg shows something similiar to this when you plug it in:
 ```
 [12249.577547] usb 2-3.1: New USB device found, idVendor=0c45, idProduct=7401
