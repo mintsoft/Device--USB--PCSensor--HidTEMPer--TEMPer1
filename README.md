@@ -1,4 +1,4 @@
-Eventually this will be USB::Device::RDingTEMPer1
+Eventually this will be Device::USB::RDingTEMPer1
 
 At the moment it's just a re-implementation of https://github.com/peterfarsinsen/pcsensor
 
