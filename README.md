@@ -1,8 +1,7 @@
-Device::USB::RDingTEMPer1
+Device::USB::PCSensor::HidTEMPer::TEMPer1
 =========================
-Eventually this will be Device::USB::RDingTEMPer1 and hopefully compatible with Device::USB::PCSensor::HidTEMPer
 
-At the moment it's just a re-implementation of https://github.com/peterfarsinsen/pcsensor
+This fork may have broken all the other HidTEMPer modules as they are currently untested
 
 All actual credit goes to:
 * peterfarsinsen (https://github.com/peterfarsinsen)
