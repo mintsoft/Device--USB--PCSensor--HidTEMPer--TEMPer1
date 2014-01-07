@@ -64,8 +64,7 @@ sub celsius
 {
     my $self    = shift;
     my @data    = ();
-use Data::Dump qw(dump);
-print "debug Internal: $self \n";
+
 	@data = $self->{unit}->read_temperatures();
 	return $data[0];
 }

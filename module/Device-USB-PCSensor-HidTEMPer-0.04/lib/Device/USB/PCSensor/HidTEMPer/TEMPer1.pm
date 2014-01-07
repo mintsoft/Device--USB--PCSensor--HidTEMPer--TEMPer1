@@ -54,7 +54,6 @@ sub init
 	use Data::Dump qw(dump);
     # Add sensor references to this instance
     $self->{sensor}->{internal} = Device::USB::PCSensor::HidTEMPer::TEMPer1::Internal->new( $self );
-#print "self: ".dump($self);
     # Set configuration
 
     #ini_control_transfer
@@ -62,24 +61,17 @@ sub init
 	my $r = $self->{device}->control_msg(0x21, 0x09, 0x0201, 0x00, $bytestring, 2, 5000 );
 	croak "Catastrophe writing the control message: \$r = $r" if $r < 0;
 	#end ini_control_transfer
-#print "\t post ini_control_transfer\n";
+
 	#Initial Setup:
-	$self->control_transfer(@uTemperature);
-#print "\t post \@uTemperature\n";	
+	$self->control_transfer(@uTemperature);	
 	$self->interrupt_read();
-#print "\t post interrupt_read\n";
 	
 	$self->control_transfer(@uIni1);
-#print "\t post \@uIni1\n";
 	$self->interrupt_read();
-#print "\t post interrupt_read\n";
 
 	$self->control_transfer(@uIni2);
-#print "\t post \@uIni2\n";
 	$self->interrupt_read();
-#print "\t post interrupt_read1\n";
 	$self->interrupt_read();
-#print "\t post interrupt_read2\n";
 
     # Rebless
     bless $self, 'Device::USB::PCSensor::HidTEMPer::TEMPer1';
@@ -102,7 +94,6 @@ This module internally includes and takes use of the following packages:
 
   use Device::USB::PCSensor::HidTEMPer::Device;
   use Device::USB::PCSensor::HidTEMPer::TEMPer1::Internal;
-  use Device::USB::PCSensor::HidTEMPer::TEMPer1::External;
 
 This module uses the strict and warning pragmas. 
 
@@ -140,11 +131,8 @@ sub control_transfer
 {
 use Data::Dump qw(dump);
 	my $self = shift;
-#print "\t".dump($self)."\ncontrol_transfer\n";
 	my (@controlQuestion)= @_;
-print "\t".dump(@controlQuestion).$/;
 	my $byte_string = $self->array_to_byte_string(@controlQuestion, 8);
-print "\t".dump($byte_string).$/;
 	my $r = $self->{device}->control_msg(0x21, 0x09, 0x0200, 0x01, $byte_string, 8, 5000);
 	croak ("a USB error occurred (\$r = $r) when communicating the following message" + @controlQuestion) if $r < 0;
 	return split qr{}, $byte_string;
@@ -152,10 +140,7 @@ print "\t".dump($byte_string).$/;
 
 sub interrupt_read
 {
-#use Data::Dump qw(dump);
-print "\t interrupt_read \n";
 	my $self  = shift;
-#print "\t".dump($self)."\n";
 	my $response = "\0" x 8;
 	my $r = $self->{device}->interrupt_read(0x82, $response, 8, 5000);
 	croak "a catastrophic USB error occured (\$r = $r) when reading from 0x82".($r==-110?", a timeout occurred":"") if $r < 0;
@@ -193,7 +178,6 @@ sub array_to_byte_string
 sub read_temperatures
 {
 	my $self = shift;
-#print "read_temperatures - $self \n";
 	$self->control_transfer(@uTemperature);
 	my @response = $self->interrupt_read();
 	return (

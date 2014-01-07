@@ -10,8 +10,6 @@ use Device::USB::PCSensor::HidTEMPer::TEMPer;
 use Device::USB::PCSensor::HidTEMPer::TEMPer1;
 use Device::USB::PCSensor::HidTEMPer::TEMPer2;
 
-use Data::Dump qw(dump);
-
 =head1 NAME
 
 Device::USB::PCSensor::HidTEMPer - Device overview

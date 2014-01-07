@@ -8,9 +8,9 @@ my $pcsensor = Device::USB::PCSensor::HidTEMPer->new();
 my @devices = $pcsensor->list_devices();
 
 say "Found the following devices: ";
-say "$_ "for(@devices);
+say "\t $_ "for(@devices);
 
 foreach my $device ( @devices ){
-	print $device->internal()->celsius() if defined $device->internal();
-	print $device->external()->celsius() if defined $device->external();
+	print "$device : ".$device->internal()->celsius()."C\n" if defined $device->internal();
+	print "$device : ".$device->external()->celsius()."C\n" if defined $device->external();
 }
