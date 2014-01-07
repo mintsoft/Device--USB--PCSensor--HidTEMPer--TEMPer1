@@ -7,7 +7,10 @@ use Device::USB;
 use Device::USB::PCSensor::HidTEMPer::Device;
 use Device::USB::PCSensor::HidTEMPer::NTC;
 use Device::USB::PCSensor::HidTEMPer::TEMPer;
+use Device::USB::PCSensor::HidTEMPer::TEMPer1;
 use Device::USB::PCSensor::HidTEMPer::TEMPer2;
+
+use Data::Dump qw(dump);
 
 =head1 NAME
 
@@ -58,28 +61,12 @@ One example of its usage can be found in the Linux Journal August 2010,
 The following constants are declared
 
 =over 3
-
-=item * PRODUCT_ID
-
-Contains the hex value of the product id on the usb chip, in this case 0x660c
-
-=cut
-
-use constant PRODUCT_ID => 0x660c; 
-
-=item * VENDOR_ID
-
-Contains the hex value representing the manufacturer of the chip, in this
-case "Tenx Technology, Inc."
-
-=cut
-
-use constant VENDOR_ID => 0x1130;
-
 =item * SUPPORTED_DEVICES
 
 Contains the mapping between name and identifiers for all supported 
 thermometers.
+
+For Vendor "Tenx Technology, Inc."
 
  Hex value   Product         Internal sensor    External sensor
  0x5b        HidTEMPerNTC    Yes                Yes
@@ -90,20 +77,33 @@ thermometers.
 
 =cut
 
-use constant SUPPORTED_DEVICES => {
-    0x5b    => {
-        'name'      => 'HidTEMPerNTC',
-        'module'    => 'Device::USB::PCSensor::HidTEMPer::NTC'
-    },
-    0x58    => {
-        'name'      => 'HidTEMPer',
-        'module'    => 'Device::USB::PCSensor::HidTEMPer::TEMPer'
-    },
-    0x59    => {
-        'name'      => 'HidTEMPer2',
-        'module'    => 'Device::USB::PCSensor::HidTEMPer::TEMPer2'
-    }
-};
+use constant SUPPORTED_DEVICES => ({
+	'vendorId' => 0x1130,
+	'productId' => 0x660c,
+	'useIdentifier' => 1,
+	'identifiers' => {
+		0x5b => {
+	        'name'      => 'HidTEMPerNTC',
+	        'module'    => 'Device::USB::PCSensor::HidTEMPer::NTC'
+	    },
+	    0x58 => {
+	        'name'      => 'HidTEMPer',
+	        'module'    => 'Device::USB::PCSensor::HidTEMPer::TEMPer'
+	    },
+	    0x59 => {
+	        'name'      => 'HidTEMPer2',
+	        'module'    => 'Device::USB::PCSensor::HidTEMPer::TEMPer2'
+	    }	
+	}
+},{
+	'vendorId' => 0x0c45,
+	'productId' => 0x7401,
+	'useIdentifier' => 0,
+	'parameters' => {
+		'name'		=> 'HidTEMPer1',
+		'module'	=> 'Device::USB::PCSensor::HidTEMPer::TEMPer1'
+	}
+});
 
 =head2 METHODS
 
@@ -121,7 +121,7 @@ sub new
     my $self    = {
         'usb'   => Device::USB->new()
     };
-
+    #$self->{usb}->debug_mode(1);
     return bless $self, $class;
 }
 
@@ -135,10 +135,13 @@ single thermometer device. Returns undef if no devices was found.
 sub device
 {
     my $self    = shift;
-    my $device  = $self->{usb}->find_device( VENDOR_ID, PRODUCT_ID );
-
-    return undef unless defined $device;
-    return _init_device($device);
+    my $device  = undef;
+    foreach my $search_device ( SUPPORTED_DEVICES ) {
+    	my $device  = $self->{usb}->find_device( $search_device->{vendorId}, $search_device->{productId} );
+    	return _init_device($device) if defined $device;	
+    }
+    
+    return undef;
 }
 
 =item * list_devices()
@@ -150,13 +153,18 @@ expected, otherwise it returns a scalar with the number of devices found.
 
 sub list_devices
 {
+	use Data::Dump qw(dump);
     my $self    = shift;
     my @list    = ();
 
-    @list = grep( defined($_), 
-                  map( _init_device($_), 
-                       $self->{usb}->list_devices( VENDOR_ID, 
-                                                   PRODUCT_ID )));
+	foreach my $search_device ( SUPPORTED_DEVICES ) {
+		push (@list, grep( defined($_), 
+				map( _init_device($_), 
+					$self->{usb}->list_devices( 
+						$search_device->{vendorId}, 
+						$search_device->{productId} 
+		))));
+    }
 
     return wantarray() ? return @list : scalar @list;
 }
@@ -165,8 +173,19 @@ sub list_devices
 # Returns undef if not supported device was found.
 sub _init_device
 {
-    my $prototype   = Device::USB::PCSensor::HidTEMPer::Device->new( $_[0] );
-    my $parameters  = SUPPORTED_DEVICES->{$prototype->identifier()};
+    my $prototype  = Device::USB::PCSensor::HidTEMPer::Device->new( $_[0] );
+    my $parameters = undef;
+    
+    for my $search_device (SUPPORTED_DEVICES)
+    {
+    	if ( $search_device->{vendorId} == $prototype->{device}->{descriptor}->{idVendor} && 
+    		 $search_device->{productId} == $prototype->{device}->{descriptor}->{idProduct} )
+    	{
+    		$parameters = $search_device->{identifiers}->{$prototype->identifier()} if $search_device->{useIdentifier};
+    		$parameters = $search_device->{parameters} unless $search_device->{useIdentifier};
+    		last if defined $parameters;
+    	}
+    }
     
     return undef unless defined $parameters;
     

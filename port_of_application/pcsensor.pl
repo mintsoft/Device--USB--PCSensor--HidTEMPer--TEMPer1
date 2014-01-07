@@ -76,7 +76,7 @@ sub array_to_byte_string
 }
 
 $usb = Device::USB->new();
-#$usb->debug_mode(1);
+$usb->debug_mode(1);
 
 #TODO: this may return multiple, check that all scalars are actually arrays later
 $dev = $usb->find_device(VENDOR, PRODUCT);
@@ -117,5 +117,5 @@ $result = interrupt_read();
 control_transfer(@uTemperature);
 my @temps = interrupt_read_temperature;
 
-say "We have the following temps: ".dump(@temps);
+say "We have the following temps: " . dump(@temps);
 $dev->release_interface($_) for (0..1);
