@@ -50,13 +50,12 @@ for use.
 
 sub init
 {
-    my $self = shift;
-	use Data::Dump qw(dump);
-    # Add sensor references to this instance
-    $self->{sensor}->{internal} = Device::USB::PCSensor::HidTEMPer::TEMPer1::Internal->new( $self );
-    # Set configuration
+	my $self = shift;
+	# Add sensor references to this instance
+	$self->{sensor}->{internal} = Device::USB::PCSensor::HidTEMPer::TEMPer1::Internal->new( $self );
+	# Set configuration
 
-    #ini_control_transfer
+	#ini_control_transfer
 	my $bytestring = "\x01\x01";
 	my $r = $self->{device}->control_msg(0x21, 0x09, 0x0201, 0x00, $bytestring, 2, 5000 );
 	croak "Catastrophe writing the control message: \$r = $r" if $r < 0;
@@ -73,8 +72,8 @@ sub init
 	$self->interrupt_read();
 	$self->interrupt_read();
 
-    # Rebless
-    bless $self, 'Device::USB::PCSensor::HidTEMPer::TEMPer1';
+	# Rebless
+	bless $self, 'Device::USB::PCSensor::HidTEMPer::TEMPer1';
 }
 
 sub DESTROY
@@ -129,7 +128,6 @@ under the same terms as Perl itself.
 
 sub control_transfer
 {
-use Data::Dump qw(dump);
 	my $self = shift;
 	my (@controlQuestion)= @_;
 	my $byte_string = $self->array_to_byte_string(@controlQuestion, 8);
