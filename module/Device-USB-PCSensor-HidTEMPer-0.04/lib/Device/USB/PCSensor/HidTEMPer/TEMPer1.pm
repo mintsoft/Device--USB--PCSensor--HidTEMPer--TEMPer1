@@ -162,8 +162,10 @@ sub parse_bytes_to_temps
 {
 	my $self = shift;
 	my ($byte1, $byte2) = @_;
-	my $temperature = ($byte2 & 0xFF) + ($self->interpret_signed_char($byte1) << 8);
-	return (125.0/32000.0) * $temperature;
+	my $temperature = ($byte2) + ($self->interpret_signed_char($byte1) << 8);
+	$temperature = (125.0/32000.0) * $temperature;
+	$temperature -= 255 if ($temperature > 140);
+	return $temperature;
 }
 
 sub array_to_byte_string
