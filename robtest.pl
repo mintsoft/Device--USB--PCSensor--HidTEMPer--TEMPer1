@@ -1,5 +1,14 @@
 #!/usr/bin/env perl
 use feature 'say';
+
+BEGIN {
+        #$ENV{'LIBUSB_LIBDIR'} = "/lib/i386-linux-gnu";
+        #$ENV{'LIBUSB_INCDIR'} = "/usr/include/libusb-1.0";
+        $ENV{'CFLAGS'}="";
+        $ENV{'CPPFLAGS'}="";
+        $ENV{'LDFLAGS'}="";
+}
+
 use Device::USB::PCSensor::HidTEMPer;
 
 my $pcsensor = Device::USB::PCSensor::HidTEMPer->new();
